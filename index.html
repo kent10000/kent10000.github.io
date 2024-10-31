@@ -238,6 +238,15 @@
 
 
     async function init() {
+        const lookupApi = "https://qbank-api.collegeboard.org/msreportingquestionbank-prod/questionbank/lookup";
+        let lookupRequest = await fetch(lookupApi);
+        let lookup = await lookupRequest.json();
+
+        let assessmentTypes = lookup.lookupData.assessment
+        let assessmentSubjects = lookup.lookupData.test
+        let assessmentDomains = lookup.lookupData.domain
+
+
         const getQuestionsApi = "https://qbank-api.collegeboard.org/msreportingquestionbank-prod/questionbank/digital/get-questions";
         const satMath = "{\"asmtEventId\":99,\"test\":2,\"domain\":\"H,P,Q,S\"}";
         const satEng = "{\"asmtEventId\":99,\"test\":1,\"domain\":\"INI,CAS,EOI,SEC\"}";
