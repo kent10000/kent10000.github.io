@@ -50,7 +50,7 @@
             margin-bottom: 15px;
         }
 
-        button {
+        .mainButton {
             background-color: #4CAF50;
             color: white;
             border: none;
@@ -62,8 +62,12 @@
             transition: background-color 0.3s;
         }
 
-        button:hover {
+        .mainButton:hover {
             background-color: #45a049;
+        }
+        
+        .sr-only{
+            visibility: hidden;
         }
 
         input[type="text"] {
@@ -160,6 +164,13 @@
             margin-top: 10px; /* Space above the skill info */
             width: 100%; /* Ensure it takes full width */
         }
+        
+        .configBox {
+            margin: 15px;
+            display: flex;
+            flex-direction: column;
+            flex: auto;
+        }
 
 
 
@@ -174,6 +185,23 @@
             display: flex;
             flex-direction: row;
             flex: auto;
+        }
+        .vStack {
+            display: flex;
+            flex-direction: column;
+            flex: auto;
+        }
+        .selectorButton {
+            background-color: white;
+            color: black;
+            border: solid;
+            border-radius: 0;
+            padding: 10px 10px;
+            margin: -1px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
         }
 
     </style>
@@ -219,22 +247,40 @@
         <input type="text" name="textInput" id="inputBlock" placeholder="Enter your answer">
     </form>
 
-    <button onclick="submitClick()" id="submit">Submit</button>
-    <button hidden id="skipButton" onclick="skip()">Skip</button>
+    <button class="mainButton" onclick="submitClick()" id="submit">Submit</button>
+    <button class="mainButton" hidden id="skipButton" onclick="skip()">Skip</button>
     <br>
     <br>
-    <button onclick="toggleExplanation()" id="toggleExplanation">Show Explanation</button>
+    <button class="mainButton" onclick="toggleExplanation()" id="toggleExplanation">Show Explanation</button>
 
     <div id="explanation" class="explanation">
     </div>
     <p id="skillInfo"></p>
 </div>
 
+<div class="configBox">
+    <button id="configBoxButton" onclick="toggleConfigBox()" class="mainButton">Options</button>
+    <div class="vStack" id="configBox" style="visibility: hidden; margin: 10px">
+        <div id="optionsBox" class="hStack">
+        </div>
+        <div id="subOptionsBox" class="hStack"></div>
+    </div>
+
+</div>
+
 
 <script>
     let questionList;
     let questionData;
+    let assessmentTypes
+    let assessmentSubjects
+    let assessmentDomains
+    let buttons = [];
+    let subjectButtons = [];
+    let testChoice;
+    let subjectChoice;
     init();
+    
 
 
     async function init() {
@@ -242,29 +288,78 @@
         let lookupRequest = await fetch(lookupApi);
         let lookup = await lookupRequest.json();
 
-        let assessmentTypes = lookup.lookupData.assessment
-        let assessmentSubjects = lookup.lookupData.test
-        let assessmentDomains = lookup.lookupData.domain
+        assessmentTypes = lookup.lookupData.assessment
+        assessmentSubjects = lookup.lookupData.test
+        assessmentDomains = lookup.lookupData.domain
+        
+        //testChoice = assessmentTypes[0].id
+        //subjectChoice = assessmentSubjects[0].id
+        
+        
+        for (let i = 0; i < assessmentTypes.length; i++) {
+            console.log(assessmentTypes[i])
+            let button = document.createElement("button")
+            button.innerText = assessmentTypes[i].text
+            button.value = assessmentTypes[i].id
+            button.classList.add("selectorButton")
+            button.addEventListener("click", function() {testSelectClick(button)})
+            buttons[i] = button
+        }
+        for (let i = 0; i < buttons.length; i++) {
+            console.log(buttons[i].innerText)
+            document.getElementById("optionsBox").appendChild(buttons[i])
+        }
 
+        for (let i = 0; i < assessmentSubjects.length; i++) {
+            console.log(assessmentSubjects[i])
+            let button = document.createElement("button")
+            button.innerText = assessmentSubjects[i].text
+            button.value = assessmentSubjects[i].id
+            button.classList.add("selectorButton")
+            button.addEventListener("click", function() {subjectSelectClick(button)})
+            subjectButtons[i] = button
+        }
+        for (let i = 0; i < subjectButtons.length; i++) {
+            console.log(subjectButtons[i].innerText)
+            document.getElementById("subOptionsBox").appendChild(subjectButtons[i])
+        }
 
+        
+        document.getElementById("rawInputForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+        });
+        testSelectClick(buttons[0])
+        subjectSelectClick(subjectButtons[0])
+
+        await reloadTest()
+    }
+    
+    async function reloadTest()
+    {
+        await loadQuestionList()
+        await getQuestion()
+    }
+    async function loadQuestionList() {
         const getQuestionsApi = "https://qbank-api.collegeboard.org/msreportingquestionbank-prod/questionbank/digital/get-questions";
-        const satMath = "{\"asmtEventId\":99,\"test\":2,\"domain\":\"H,P,Q,S\"}";
-        const satEng = "{\"asmtEventId\":99,\"test\":1,\"domain\":\"INI,CAS,EOI,SEC\"}";
-        let testSelection = satEng;
-        let questionListReq = fetch(getQuestionsApi, {
+        //const satMath = "{\"asmtEventId\":99,\"test\":2,\"domain\":\"H,P,Q,S\"}";
+        //const sfddddd = "{\"asmtEventId\":100\",\"test\":2,\"domain\":\"H,P,Q,S\"}"
+        //const satEng = "{\"asmtEventId\":99,\"test\":1,\"domain\":\"INI,CAS,EOI,SEC\"}";
+        //let testSelection = satEng;
+
+        let testSelection = "{\"asmtEventId\":" + testChoice + ",\"test\":" + subjectChoice + ",\"domain\":\"" + getDomains() + "\"}";
+        let questionListReq = await fetch(getQuestionsApi, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: testSelection
         });
-        document.getElementById("rawInputForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-        });
+        questionList = await questionListReq.json()
 
-        let list = await questionListReq
-        questionList = await list.json();
-        await getQuestion()
+    }
+    
+    function buildDomain() {
+        
     }
 
     function toggleExplanation() {
@@ -276,6 +371,84 @@
             explanationDiv.style.display = "none"; // Hide the explanation
             document.getElementById("toggleExplanation").innerText = "Show Explanation"
         }
+    }
+    
+    function toggleConfigBox() {
+       if (document.getElementById("configBox").style.visibility === "visible") {
+           document.getElementById("configBox").style.visibility = "hidden";
+       } else{
+           document.getElementById("configBox").style.visibility = "visible";
+       }
+    }
+    function getDomains() {
+      
+        let domainsArray;
+        switch(subjectChoice) {
+            case "1":
+                console.log(assessmentDomains)
+                domainsArray = assessmentDomains["R&W"];
+                console.log("English")
+                break;
+            default:
+                domainsArray = assessmentDomains.Math;
+                break;
+        }
+        console.log(domainsArray)
+        let codeList = ""
+        for (let i = 0; i < domainsArray.length; i++) {
+            let code = domainsArray[i].primaryClassCd
+            codeList += code +","
+        }
+        return codeList.substring(0, codeList.length - 1)
+    }
+    
+    function testSelectClick(selection) {
+        for (let i = 0; i < buttons.length; i++) {
+            buttons[i].style.background = "#ffffff";
+            /*if (buttons[i].value === selection.value) {
+                buttons[i].backgroundColor = "#4CAF50"
+            }*/
+        }
+        
+        selection.style.background  = "#4CAF50";
+        testChoice = selection.value;
+        reloadTest()
+    }
+    
+    function subjectSelectClick(button) {
+        for (let i = 0; i < subjectButtons.length; i++) {
+            subjectButtons[i].style.background = "#ffffff";
+            /*if (buttons[i].value === selection.value) {
+                buttons[i].backgroundColor = "#4CAF50"
+            }*/
+            
+        }
+        button.style.background  = "#4CAF50";
+        subjectChoice = button.value
+        reloadTest()
+        
+    }
+    
+    function updateTestChoice() {
+        for (let i = 0; i < assessmentSubjects.length; i++) {
+            console.log(assessmentSubjects[i])
+            let button = document.createElement("button")
+            button.innerText = assessmentSubjects[i].text
+            button.value = assessmentSubjects[i].id
+            button.classList.add("selectorButton")
+            button.addEventListener("click", function() {subjectSelectClick(button)})
+            subjectButtons[i] = button
+        }
+        for (let i = 0; i < subjectButtons.length; i++) {
+            console.log(subjectButtons[i].innerText)
+            document.getElementById("subOptionsBox").appendChild(buttons[i])
+        }
+        
+    }
+    
+    function generateOptions() {
+        
+        
     }
 
     //14931-DC
@@ -347,7 +520,7 @@
             let stem = rawDataObj.stem;
 
             if (rawDataObj.stimulus) {
-                stem = rawDataObj.stimulus + stem;
+                stem = rawDataObj.stimulus.replace("______blank", "______") + stem;
             }
 
             obj.prompt = stem
