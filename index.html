@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SaTrainer</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-height: 80vh; /* Set a maximum height */
+            overflow-y: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 750px; /* Increased width */
+            max-width: 90%; /* Responsive max width */
+        }
+
+        .prompt {
+            margin-bottom: 20px;
+            font-size: 18px;
+            line-height: 1.5;
+            white-space: pre-wrap; /* Preserve whitespace and wrap text */
+        }
+
+        input[type="radio"] {
+            margin-right: 10px;
+            accent-color: #4CAF50; /* Modern browsers support this for custom radio button color */
+        }
+
+        label {
+            display: inline-block;
+            margin-bottom: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        div {
+            margin-bottom: 15px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        .explanation {
+            display: none; /* Initially hidden */
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e7f3fe;
+            border: 1px solid #b3d7ff;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .difficulty {
+            margin-top: 20px; /* Space above the difficulty section */
+        }
+
+        .difficulty h2 {
+            text-align: center;
+            color: #4CAF50; /* Same color as the title */
+            margin-bottom: 10px; /* Space below the title */
+        }
+
+        .difficulty-boxes {
+            display: flex;
+            justify-content: space-between; /* Space out the boxes */
+        }
+
+        .difficulty-box {
+            flex: 1; /* Allow boxes to grow equally */
+            height: 30px; /* Set a fixed height */
+            margin: 0 5px; /* Space between boxes */
+            border-radius: 5px; /* Rounded corners */
+            background-color: #e0e0e0; /* Default background color */
+        }
+
+        .difficulty-box.easy {
+            background-color: #4CAF50; /* Green for Easy */
+        }
+
+        .difficulty-box.medium {
+            background-color: #ffeb3b; /* Yellow for Medium */
+        }
+
+        .difficulty-box.hard {
+            background-color: #f44336; /* Red for Hard */
+        }
+        .titleBox {
+            display: flex;
+            align-items: center; /* Align items vertically */
+            justify-content: center; /* Center the title */
+            position: relative; /* Set position relative for absolute positioning of difficulty */
+            width: 100%; /* Ensure it takes full width */
+        }
+
+        .titleBox {
+            display: flex;
+            align-items: flex-start; /* Align items to the start */
+            justify-content: center; /* Center the title */
+            position: relative; /* Set position relative for absolute positioning of difficulty */
+            width: 100%; /* Ensure it takes full width */
+        }
+
+        .difficulty-container {
+            display: flex;
+            flex-direction: column; /* Stack label and squares vertically */
+            align-items: flex-start; /* Align items to the start */
+            margin-right: 20px; /* Space between difficulty and title */
+            left: 20px; /* Space between difficulty and title */
+        }
+
+        h1 {
+            text-align: center; /* Center the title text */
+            color: #4CAF50;
+            margin: 0; /* Remove default margin */
+            flex-grow: 1; /* Allow the title to take up available space */
+        }
+
+        .skill-info {
+            text-align: center; /* Center the skill category and description */
+            margin-top: 10px; /* Space above the skill info */
+            width: 100%; /* Ensure it takes full width */
+        }
+
+
+
+        .squareCheck {
+            width: 15px;
+            height: 15px;
+            border-style: solid;
+            border-width: 2px;
+            margin: 1px;
+        }
+        .hStack {
+            display: flex;
+            flex-direction: row;
+            flex: auto;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="titleBox">
+        <div class="difficulty-container">
+            <label style="font-size: small">Difficulty</label>
+            <div class="hStack">
+                <div class="squareCheck" id="b1"></div>
+                <div class="squareCheck" id="b2"></div>
+                <div class="squareCheck" id="b3"></div>
+            </div>
+        </div>
+        <h1 id="title">SaTrainer</h1>
+    </div>
+
+
+
+
+    <div id="prompt" class="prompt"></div>
+
+    <form id="inputForm">
+        <div>
+            <input type="radio" id="a" name="answerSelector" value="a">
+            <label for="a" id="aLabel"></label>
+        </div>
+        <div>
+            <input type="radio" id="b" name="answerSelector" value="b">
+            <label for="b" id="bLabel"></label>
+        </div>
+        <div>
+            <input type="radio" id="c" name="answerSelector" value="c">
+            <label for="c" id="cLabel"></label>
+        </div>
+        <div>
+            <input type="radio" id="d" name="answerSelector" value="d">
+            <label for="d" id="dLabel"></label>
+        </div>
+    </form>
+    <form id="rawInputForm" hidden>
+        <input type="text" name="textInput" id="inputBlock" placeholder="Enter your answer">
+    </form>
+
+    <button onclick="submitClick()" id="submit">Submit</button>
+    <br>
+    <br>
+    <button onclick="toggleExplanation()" id="toggleExplanation">Show Explanation</button>
+
+    <div id="explanation" class="explanation">
+    </div>
+    <p id="skillInfo"></p>
+</div>
+
+<script>
+    init()
+    let questionList;
+    let questionData;
+
+    class QuestionData {
+        difficulty;
+        prompt;
+        answer;
+        rationale;
+    }
+
+    async function init() {
+        const getQuestionsApi = "https://qbank-api.collegeboard.org/msreportingquestionbank-prod/questionbank/digital/get-questions";
+        const satMath = "{\"asmtEventId\":99,\"test\":2,\"domain\":\"H,P,Q,S\"}";
+        let questionListReq = fetch(getQuestionsApi, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: satMath
+        });
+        document.getElementById("rawInputForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+        });
+
+        let list = await questionListReq
+        questionList = await list.json();
+        await getQuestion()
+    }
+
+    function toggleExplanation() {
+        const explanationDiv = document.getElementById("explanation");
+        if (explanationDiv.style.display === "none" || explanationDiv.style.display === "") {
+            explanationDiv.style.display = "block"; // Show the explanation
+            document.getElementById("toggleExplanation").innerText = "Hide Explanation"
+        } else {
+            explanationDiv.style.display = "none"; // Hide the explanation
+            document.getElementById("toggleExplanation").innerText = "Show Explanation"
+        }
+    }
+
+    //14931-DC
+
+    async function getQuestionData(code) {
+        let obj = {
+            prompt: null,
+            answer: {
+                choice: {
+                    a: null,
+                    b: null,
+                    c: null,
+                    d: null
+                },
+                answers: [],
+                rationale: null,
+                difficulty: null,
+                skillCat: null,
+                skillDesc: null
+            }
+        };
+        if (code.ibn) {
+            console.log(code.ibn)
+            const base = "https://saic.collegeboard.org/disclosed/" + code.ibn + ".json";
+            let response = await fetch(base, {
+                method: "GET"
+            })
+            let rawDataObj = (await response.json())[0];
+
+            let body = rawDataObj.body;
+            let prompt = rawDataObj.prompt;
+            if (body != null) {
+                prompt = body + prompt;
+            }
+            obj.prompt = prompt;
+            //console.log(rawDataObj.answer.style.toLowerCase() == "spr")
+            obj.answer.isSpr = rawDataObj.answer.style.toLowerCase() === "spr";
+            if (!obj.answer.isSpr) {
+                obj.answer.choice.a = rawDataObj.answer.choices.a.body
+                obj.answer.choice.b = rawDataObj.answer.choices.b.body
+                obj.answer.choice.c = rawDataObj.answer.choices.c.body
+                obj.answer.choice.d = rawDataObj.answer.choices.d.body
+            }
+            obj.answer.answers = [rawDataObj.answer.correct_choice]
+            obj.answer.rationale = rawDataObj.answer.rationale
+            obj.difficulty = code.difficulty
+            obj.skillCat = code.primary_class_cd_desc
+            obj.skillDesc = code.skill_desc
+            console.log("ibn")
+        } else {
+            const getQuestionsApi = "https://qbank-api.collegeboard.org/msreportingquestionbank-prod/questionbank/digital/get-question";
+            let response = await fetch(getQuestionsApi, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: '{"external_id":' + '"' + code.external_id + '"}'
+            });
+            let rawDataObj = await response.json()
+
+            obj.prompt = rawDataObj.stem;
+            obj.answer.isSpr = rawDataObj.type === "spr";
+            if (!obj.answer.isSpr) {
+                obj.answer.choice.a = rawDataObj.answerOptions[0].content
+                obj.answer.choice.b = rawDataObj.answerOptions[1].content
+                obj.answer.choice.c = rawDataObj.answerOptions[2].content
+                obj.answer.choice.d = rawDataObj.answerOptions[3].content
+            }
+            obj.answer.answers = rawDataObj.correct_answer;
+            obj.answer.rationale = rawDataObj.rationale
+            obj.difficulty = code.difficulty
+            obj.skillCat = code.primary_class_cd_desc
+            obj.skillDesc = code.skill_desc
+            console.log("new")
+
+        }
+        return obj
+    }
+
+    /*async function getQuestionData(code) {
+        if (code.length === 8) {
+            const base = "https://saic.collegeboard.org/disclosed/" + code + ".json";
+            let response = await fetch(base, {
+                method: "GET"
+            })
+            let rawDataObj = await response.json();
+            let obj = {};
+            obj.prompt = rawDataObj.prompt;
+            obj.answer.style = rawDataObj.answer.style;
+            obj.answer.choice.a = rawDataObj.answer.choices.a.body
+            obj.answer.choice.b = rawDataObj.answer.choices.b.body
+            obj.answer.choice.c = rawDataObj.answer.choices.c.body
+            obj.answer.choice.d = rawDataObj.answer.choices.d.body
+            obj.answer.answers = [rawDataObj.answer.correct_choice]
+            obj.answer.rationale = rawDataObj.answer.rationale
+
+
+
+
+
+        } else if (code.length === 36) {
+
+        } else {
+            //throw
+        }
+
+    }*/
+
+    async function getQuestion() {
+        //console.log(questionList[2])
+        //console.log("Done")
+
+
+        let number = Math.floor(Math.random() * questionList.length);
+        questionData = await getQuestionData(questionList[number])
+        console.log(questionData)
+
+        let prompt = questionData.prompt;
+
+        document.getElementById("prompt").innerHTML = prompt;
+        if (!questionData.answer.isSpr) {
+            document.getElementById("aLabel").innerHTML = questionData.answer.choice.a;
+            document.getElementById("bLabel").innerHTML = questionData.answer.choice.b;
+            document.getElementById("cLabel").innerHTML = questionData.answer.choice.c;
+            document.getElementById("dLabel").innerHTML = questionData.answer.choice.d;
+        } else {
+            document.getElementById("inputForm").hidden = true
+
+            document.getElementById("rawInputForm").hidden = false
+        }
+
+        document.getElementById("skillInfo").innerHTML = "<b>" + questionData.skillCat + ": " + "</b>" + questionData.skillDesc;
+
+        switch (questionData.difficulty) {
+            case "E":
+                document.getElementById("b1").style.backgroundColor = "#4CAF50";
+                break
+            case "M":
+                document.getElementById("b1").style.backgroundColor = "#4CAF50";
+                document.getElementById("b2").style.backgroundColor = "#4CAF50";
+                break
+            case "H":
+                document.getElementById("b1").style.backgroundColor = "#4CAF50";
+                document.getElementById("b2").style.backgroundColor = "#4CAF50";
+                document.getElementById("b3").style.backgroundColor = "#4CAF50";
+                break;
+
+        }
+        document.getElementById("explanation").innerHTML = questionData.answer.rationale;
+    }
+
+    /*function getQuestion() {
+        let request = new XMLHttpRequest();
+        request.open("GET", "http://localhost:8080/getQuestion", false);
+        request.send();
+
+
+
+        questionData = JSON.parse(request.responseText);
+        let body = questionData.body;
+        let prompt = questionData.prompt;
+        if (body != null) {
+            prompt = body + prompt;
+        }
+        document.getElementById("prompt").innerHTML = prompt;
+        if (!questionData.answer.IsSpr) {
+            document.getElementById("aLabel").innerHTML = questionData.answer.choices.a.body;
+            document.getElementById("bLabel").innerHTML = questionData.answer.choices.b.body;
+            document.getElementById("cLabel").innerHTML = questionData.answer.choices.c.body;
+            document.getElementById("dLabel").innerHTML = questionData.answer.choices.d.body;
+        } else {
+            document.getElementById("inputForm").hidden = true
+
+            document.getElementById("rawInputForm").hidden = false
+        }
+
+        document.getElementById("skillInfo").innerHTML = "<b>" + questionData.SkillCat + ": " + "</b>" + questionData.SkillDesc;
+
+        switch (questionData.Difficulty) {
+            case "E":
+                document.getElementById("b1").style.backgroundColor = "#4CAF50";
+                break
+            case "M":
+                document.getElementById("b1").style.backgroundColor = "#4CAF50";
+                document.getElementById("b2").style.backgroundColor = "#4CAF50";
+                break
+            case "H":
+                document.getElementById("b1").style.backgroundColor = "#4CAF50";
+                document.getElementById("b2").style.backgroundColor = "#4CAF50";
+                document.getElementById("b3").style.backgroundColor = "#4CAF50";
+                break;
+
+        }
+        document.getElementById("explanation").innerHTML = questionData.answer.rationale;
+    }
+    */
+
+    function correct() {
+        document.getElementById("title").innerText = "Correct!"
+        document.getElementById("title").style.color = "#4CAF50"
+        document.getElementById("submit").innerText = "Next"
+
+    }
+
+    function wrong() {
+        document.getElementById("title").innerText = "Wrong :("
+        document.getElementById("title").style.color = "#ff0000"
+    }
+    function submitClick() {
+
+        if (document.getElementById("title").innerText === "Correct!") {
+            document.getElementById("inputForm").hidden = false
+
+            document.getElementById("rawInputForm").hidden = true
+            document.getElementById("b1").style.backgroundColor = "#ffffff"
+            document.getElementById("b2").style.backgroundColor = "#ffffff"
+            document.getElementById("b3").style.backgroundColor = "#ffffff"
+            //TODO: clear input
+            getQuestion()
+
+            document.getElementById("title").innerText = "SaTrainer"
+            document.getElementById("submit").innerText = "Submit"
+            return;
+        }
+
+        if (document.getElementById("rawInputForm").hidden) {
+            let data = new FormData(document.getElementById("inputForm"))
+            let choice = data.get("answerSelector");
+            if(choice === questionData.answer.answers[0]) {
+                correct()
+            } else {
+                wrong()
+            }
+        } else {
+
+            let data = new FormData(document.getElementById("rawInputForm"))
+            let choice = data.get("textInput")
+            let answers = questionData.answer.answers
+            for (let i = 0; i < answers.length; i++){
+                if (choice === answers[i]) {
+                    correct()
+                    return;
+                }
+            }
+            wrong()
+        }
+
+    }
+
+
+</script>
+
+
+
+
+</body>
+</html>
