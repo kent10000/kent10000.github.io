@@ -199,19 +199,19 @@
 
     <form id="inputForm">
         <div>
-            <input type="radio" id="a" name="answerSelector" value="a">
+            <input type="radio" id="a" name="answerSelector" value="A">
             <label for="a" id="aLabel"></label>
         </div>
         <div>
-            <input type="radio" id="b" name="answerSelector" value="b">
+            <input type="radio" id="b" name="answerSelector" value="B">
             <label for="b" id="bLabel"></label>
         </div>
         <div>
-            <input type="radio" id="c" name="answerSelector" value="c">
+            <input type="radio" id="c" name="answerSelector" value="C">
             <label for="c" id="cLabel"></label>
         </div>
         <div>
-            <input type="radio" id="d" name="answerSelector" value="d">
+            <input type="radio" id="d" name="answerSelector" value="D">
             <label for="d" id="dLabel"></label>
         </div>
     </form>
@@ -312,7 +312,7 @@
                 obj.answer.choice.c = rawDataObj.answer.choices.c.body
                 obj.answer.choice.d = rawDataObj.answer.choices.d.body
             }
-            obj.answer.answers = [rawDataObj.answer.correct_choice]
+            obj.answer.answers = [rawDataObj.answer.correct_choice.toUpperCase()]
             obj.answer.rationale = rawDataObj.answer.rationale
             obj.difficulty = code.difficulty
             obj.skillCat = code.primary_class_cd_desc
@@ -483,7 +483,7 @@
             document.getElementById("inputForm").hidden = false
 
             document.getElementById("rawInputForm").hidden = true
-            document.getElementById("b1").style.backgroundColor = "#ffffff"
+            //document.getElementById("b1").style.backgroundColor = "#ffffff"
             document.getElementById("b2").style.backgroundColor = "#ffffff"
             document.getElementById("b3").style.backgroundColor = "#ffffff"
             //TODO: clear input
@@ -497,6 +497,8 @@
         if (document.getElementById("rawInputForm").hidden) {
             let data = new FormData(document.getElementById("inputForm"))
             let choice = data.get("answerSelector");
+            console.log(questionData.answer.answers[0])
+            console.log(choice)
             if(choice === questionData.answer.answers[0]) {
                 correct()
             } else {
