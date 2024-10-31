@@ -258,15 +258,24 @@
     <p id="skillInfo"></p>
 </div>
 
-<div class="configBox">
-    <button id="configBoxButton" onclick="toggleConfigBox()" class="mainButton">Options</button>
-    <div class="vStack" id="configBox" style="visibility: hidden; margin: 10px">
-        <div id="optionsBox" class="hStack">
-        </div>
-        <div id="subOptionsBox" class="hStack"></div>
+<div class="vStack" style="width: 200px; margin: 10px">
+    <div class="container">
+        <table id="tallyTable">
+            
+        </table>
     </div>
+    <div class="configBox">
+        <button id="configBoxButton" onclick="toggleConfigBox()" class="mainButton">Options</button>
+        <div class="vStack" id="configBox" style="visibility: hidden; margin: 10px">
+            <div id="optionsBox" class="hStack">
+            </div>
+            <div id="subOptionsBox" class="hStack"></div>
+        </div>
 
+    </div>
 </div>
+
+
 
 
 <script>
