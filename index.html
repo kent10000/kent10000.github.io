@@ -220,6 +220,7 @@
     </form>
 
     <button onclick="submitClick()" id="submit">Submit</button>
+    <button hidden id="skipButton" onclick="skip()">Skip</button>
     <br>
     <br>
     <button onclick="toggleExplanation()" id="toggleExplanation">Show Explanation</button>
@@ -229,27 +230,24 @@
     <p id="skillInfo"></p>
 </div>
 
+
 <script>
-    init()
     let questionList;
     let questionData;
+    init();
 
-    class QuestionData {
-        difficulty;
-        prompt;
-        answer;
-        rationale;
-    }
 
     async function init() {
         const getQuestionsApi = "https://qbank-api.collegeboard.org/msreportingquestionbank-prod/questionbank/digital/get-questions";
         const satMath = "{\"asmtEventId\":99,\"test\":2,\"domain\":\"H,P,Q,S\"}";
+        const satEng = "{\"asmtEventId\":99,\"test\":1,\"domain\":\"INI,CAS,EOI,SEC\"}";
+        let testSelection = satEng;
         let questionListReq = fetch(getQuestionsApi, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: satMath
+            body: testSelection
         });
         document.getElementById("rawInputForm").addEventListener("submit", function (e) {
             e.preventDefault();
@@ -290,6 +288,7 @@
                 skillDesc: null
             }
         };
+        //code.ibn = "070613-DC";
         if (code.ibn) {
             console.log(code.ibn)
             const base = "https://saic.collegeboard.org/disclosed/" + code.ibn + ".json";
@@ -306,19 +305,27 @@
             obj.prompt = prompt;
             //console.log(rawDataObj.answer.style.toLowerCase() == "spr")
             obj.answer.isSpr = rawDataObj.answer.style.toLowerCase() === "spr";
+            obj.answer.rationale = rawDataObj.answer.rationale
             if (!obj.answer.isSpr) {
                 obj.answer.choice.a = rawDataObj.answer.choices.a.body
                 obj.answer.choice.b = rawDataObj.answer.choices.b.body
                 obj.answer.choice.c = rawDataObj.answer.choices.c.body
                 obj.answer.choice.d = rawDataObj.answer.choices.d.body
+                obj.answer.answers = [rawDataObj.answer.correct_choice.toUpperCase()]
+            } else {
+                const matchPhraseStart = "Note that "
+                const matchPhraseEnd = " are"
+                let answerStart = obj.answer.rationale.lastIndexOf(matchPhraseStart) + matchPhraseStart.length;
+                let answerEnd = obj.answer.rationale.lastIndexOf(matchPhraseEnd);
+                let answersString = obj.answer.rationale.substring(answerStart, answerEnd);
+                obj.answer.answers = answersString.split(" and ")
             }
-            obj.answer.answers = [rawDataObj.answer.correct_choice.toUpperCase()]
-            obj.answer.rationale = rawDataObj.answer.rationale
+
             obj.difficulty = code.difficulty
             obj.skillCat = code.primary_class_cd_desc
             obj.skillDesc = code.skill_desc
             console.log("ibn")
-        } else {
+        } else {//spr
             const getQuestionsApi = "https://qbank-api.collegeboard.org/msreportingquestionbank-prod/questionbank/digital/get-question";
             let response = await fetch(getQuestionsApi, {
                 method: "POST",
@@ -328,16 +335,25 @@
                 body: '{"external_id":' + '"' + code.external_id + '"}'
             });
             let rawDataObj = await response.json()
+            let stem = rawDataObj.stem;
 
-            obj.prompt = rawDataObj.stem;
+            if (rawDataObj.stimulus) {
+                stem = rawDataObj.stimulus + stem;
+            }
+
+            obj.prompt = stem
             obj.answer.isSpr = rawDataObj.type === "spr";
+            obj.answer.answers = rawDataObj.correct_answer;
             if (!obj.answer.isSpr) {
                 obj.answer.choice.a = rawDataObj.answerOptions[0].content
                 obj.answer.choice.b = rawDataObj.answerOptions[1].content
                 obj.answer.choice.c = rawDataObj.answerOptions[2].content
                 obj.answer.choice.d = rawDataObj.answerOptions[3].content
+            } else {
+                for (let i = 0; i < obj.answer.answers.length; i++) {
+                    obj.answer.answers[i] = obj.answer.answers[i].trim()
+                }
             }
-            obj.answer.answers = rawDataObj.correct_answer;
             obj.answer.rationale = rawDataObj.rationale
             obj.difficulty = code.difficulty
             obj.skillCat = code.primary_class_cd_desc
@@ -377,6 +393,15 @@
 
     }*/
 
+    function toggleSkip() {
+        document.getElementById("skipButton").hidden = !document.getElementById("skipButton").hidden
+    }
+
+    function skip() {
+        correct()
+        submitClick()
+    }
+
     async function getQuestion() {
         //console.log(questionList[2])
         //console.log("Done")
@@ -386,9 +411,7 @@
         questionData = await getQuestionData(questionList[number])
         console.log(questionData)
 
-        let prompt = questionData.prompt;
-
-        document.getElementById("prompt").innerHTML = prompt;
+        document.getElementById("prompt").innerHTML = questionData.prompt;
         if (!questionData.answer.isSpr) {
             document.getElementById("aLabel").innerHTML = questionData.answer.choice.a;
             document.getElementById("bLabel").innerHTML = questionData.answer.choice.b;
@@ -476,11 +499,14 @@
     function wrong() {
         document.getElementById("title").innerText = "Wrong :("
         document.getElementById("title").style.color = "#ff0000"
+        document.getElementById("skipButton").hidden = false
+
     }
     function submitClick() {
 
         if (document.getElementById("title").innerText === "Correct!") {
             document.getElementById("inputForm").hidden = false
+            document.getElementById("skipButton").hidden = true
 
             document.getElementById("rawInputForm").hidden = true
             //document.getElementById("b1").style.backgroundColor = "#ffffff"
