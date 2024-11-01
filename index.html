@@ -757,6 +757,18 @@
 
         analytics.push(obj)
     }
+    
+    function getCatCount(category) {
+        let correct = 0;
+        let incorrect = 0;
+        for (const categoryElement of Object.values(category)) {
+            correct += categoryElement.correct;
+            incorrect += categoryElement.incorrect;
+        }
+        return {
+            correct, incorrect
+        }
+    }
 
     function genTable(tallyData) {
         let table = document.getElementById("tallyTable");
@@ -777,28 +789,39 @@
             headerRow.insertCell().innerText = 'Category';
             headerRow.insertCell().innerText = 'Correct';
             headerRow.insertCell().innerText = 'Incorrect';
+            headerRow.insertCell().innerText = 'Pct';
         }
 
         // Iterate through the JSON object
         for (const category of Object.keys(tallyData)) {
+            const catObj = tallyData[category]
             console.log(tallyData)
             console.log(category)
             console.log("Cat")
             let row = tbody.insertRow()
             row.insertCell().innerHTML = "<b>" + category + "</b>"
-            row.insertCell().innerText = "0"
-            row.insertCell().innerText = "0"
-            for (const subCategory of Object.keys(tallyData[category])) {
+            const catCount = getCatCount(catObj)
+            row.insertCell().innerText = catCount.correct
+            row.insertCell().innerText = catCount.incorrect
+            console.log(catCount.correct)
+            if (!(catCount.correct === 0)) {
+                row.insertCell().innerText = Math.round((catCount.correct / (catCount.correct + catCount.incorrect)) * 100).toString() + "%"
+            } else {
+                row.insertCell().innerText = "0%"
+            }
+            for (const subCategory of Object.keys(catObj)) {
                 console.log(subCategory)
                 row = tbody.insertRow()
                 let data = tallyData[category][subCategory]
                 row.insertCell().innerText = subCategory
                 row.insertCell().innerText = data.correct
                 row.insertCell().innerText = data.incorrect
+                if (!(data.correct === 0)) {
+                    row.insertCell().innerText = Math.round((data.correct / (data.correct + data.incorrect)) * 100).toString() + "%"
+                } else {
+                    row.insertCell().innerText = "0%"
+                }
             }
-
-            
-            
         }
     }
 
