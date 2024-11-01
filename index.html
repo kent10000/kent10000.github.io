@@ -260,7 +260,7 @@
 
 <div class="vStack" style="width: 200px; margin: 10px">
     <div class="container">
-        <table id="tallyTable">
+        <table id="tallyTable" style="border: solid">
             
         </table>
     </div>
@@ -288,6 +288,9 @@
     let subjectButtons = [];
     let testChoice;
     let subjectChoice;
+    let correctAnswer = true
+    let analytics = [];
+    let tally = {};
     init();
     
 
@@ -299,6 +302,7 @@
 
         assessmentTypes = lookup.lookupData.assessment
         assessmentSubjects = lookup.lookupData.test
+        // noinspection JSDeprecatedSymbols
         assessmentDomains = lookup.lookupData.domain
         
         //testChoice = assessmentTypes[0].id
@@ -464,6 +468,7 @@
 
     async function getQuestionData(code) {
         let obj = {
+            questionId: null,
             prompt: null,
             answer: {
                 choice: {
@@ -479,6 +484,7 @@
                 skillDesc: null
             }
         };
+        obj.questionId = code.questionId;
         //code.ibn = "070613-DC";
         if (code.ibn) {
             console.log(code.ibn)
@@ -529,7 +535,7 @@
             let stem = rawDataObj.stem;
 
             if (rawDataObj.stimulus) {
-                stem = rawDataObj.stimulus.replace("______blank", "______") + stem;
+                stem = rawDataObj.stimulus/*.replace("______blank", "______")*/ + stem;
             }
 
             obj.prompt = stem
@@ -589,6 +595,8 @@
     }
 
     function skip() {
+        correctAnswer = false
+        console.log(correctAnswer)
         correct()
         submitClick()
     }
@@ -691,8 +699,107 @@
         document.getElementById("title").innerText = "Wrong :("
         document.getElementById("title").style.color = "#ff0000"
         document.getElementById("skipButton").hidden = false
+        correctAnswer = false
 
     }
+
+    function runAnalytics() {
+        if (correctAnswer) {
+            if (!tally[questionData.skillCat]) {
+                tally[questionData.skillCat] = {}
+
+            }
+            if (!tally[questionData.skillCat][questionData.skillDesc]) {
+                tally[questionData.skillCat][questionData.skillDesc]= {}
+                tally[questionData.skillCat][questionData.skillDesc].correct = 0;
+                tally[questionData.skillCat][questionData.skillDesc].incorrect = 0;
+            }
+            tally[questionData.skillCat][questionData.skillDesc].correct += 1;
+
+        } else {
+            if (!tally[questionData.skillCat]) {
+                tally[questionData.skillCat] = {}
+
+            }
+            if (!tally[questionData.skillCat][questionData.skillDesc]) {
+                tally[questionData.skillCat][questionData.skillDesc] = {};
+                tally[questionData.skillCat][questionData.skillDesc].correct = 0;
+                tally[questionData.skillCat][questionData.skillDesc].incorrect = 0;
+            }
+            tally[questionData.skillCat][questionData.skillDesc].incorrect += 1;
+        }
+        genTable()
+        console.log(tally)
+
+        let obj = {
+            questionId: null,
+            isCorrect: null,
+            skillCat: null,
+            skillDesc: null
+        }
+        obj.questionId = questionData.questionId;
+        obj.isCorrect = correctAnswer
+        console.log(correctAnswer)
+        console.log(obj.isCorrect)
+        obj.skillCat = questionData.skillCat;
+        obj.skillDesc = questionData.skillDesc;
+
+        analytics.push(obj)
+    }
+
+    function genTable(jsonData) {
+        let table = document.getElementById("tallyTable");
+
+        // Clear previous table body if it exists
+        const existingTbody = table.querySelector('tbody');
+        if (existingTbody) {
+            table.removeChild(existingTbody);
+        }
+
+        // Create table body
+        const tbody = table.createTBody();
+
+        // Create table header if it doesn't exist
+        if (!table.querySelector('thead')) {
+            const header = table.createTHead();
+            const headerRow = header.insertRow();
+            headerRow.insertCell().innerText = 'Category';
+            headerRow.insertCell().innerText = 'Subcategory';
+            headerRow.insertCell().innerText = 'Correct';
+            headerRow.insertCell().innerText = 'Incorrect';
+        }
+
+        // Iterate through the JSON object
+        for (const category in jsonData) {
+            const subcategories = jsonData[category];
+            let totalCorrect = 0;
+            let totalIncorrect = 0;
+
+            // Calculate totals for the category
+            for (const subcategory in subcategories) {
+                totalCorrect += subcategories[subcategory].correct;
+                totalIncorrect += subcategories[subcategory].incorrect;
+            }
+
+            // Create a row for the category total
+            const categoryRow = tbody.insertRow();
+            const categoryCell = categoryRow.insertCell();
+            categoryCell.colSpan = 2; // Span across two columns
+            categoryCell.innerHTML = `<strong>${category}</strong> (Total Correct: ${totalCorrect}, Total Incorrect: ${totalIncorrect})`;
+            categoryCell.style.textAlign = 'left'; // Align text to the left
+
+            // Add subcategory rows
+            for (const subcategory in subcategories) {
+                const { correct, incorrect } = subcategories[subcategory];
+                const row = tbody.insertRow();
+                row.insertCell().innerText = ''; // Empty cell for category
+                row.insertCell().innerText = subcategory;
+                row.insertCell().innerText = correct;
+                row.insertCell().innerText = incorrect;
+            }
+        }
+    }
+
     function submitClick() {
 
         if (document.getElementById("title").innerText === "Correct!") {
@@ -703,6 +810,9 @@
             //document.getElementById("b1").style.backgroundColor = "#ffffff"
             document.getElementById("b2").style.backgroundColor = "#ffffff"
             document.getElementById("b3").style.backgroundColor = "#ffffff"
+            runAnalytics()
+            correctAnswer = true
+            console.log(analytics)
             //TODO: clear input
             getQuestion()
 
