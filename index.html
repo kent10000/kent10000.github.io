@@ -237,8 +237,7 @@
         th, td {
             border: 1px solid #000; /* Add a solid black border to table cells */
             padding: 10px; /* Add padding for better spacing */
-            text-align: left; /* Align text to the left */
-            background-color: #fff; /* Set background color for cells */
+            text-align: left; /* Align text to the left */ /* Set background color for cells */
         }
 
     </style>
@@ -797,6 +796,8 @@
 
     function genTable(tallyData) {
         let table = document.getElementById("tallyTable");
+        let oCorrect = 0;
+        let oIncorrect = 0;
 
         // Clear previous table body if it exists
         const existingTbody = table.querySelector('tbody');
@@ -828,12 +829,15 @@
             const catCount = getCatCount(catObj)
             row.insertCell().innerText = catCount.correct
             row.insertCell().innerText = catCount.incorrect
+            oCorrect += catCount.correct
+            oIncorrect += catCount.incorrect
             console.log(catCount.correct)
             if (!(catCount.correct === 0)) {
                 row.insertCell().innerText = Math.round((catCount.correct / (catCount.correct + catCount.incorrect)) * 100).toString() + "%"
             } else {
                 row.insertCell().innerText = "0%"
             }
+            row.style.backgroundColor = "#D3D3D3"
             for (const subCategory of Object.keys(catObj)) {
                 console.log(subCategory)
                 row = tbody.insertRow()
@@ -846,6 +850,16 @@
                 } else {
                     row.insertCell().innerText = "0%"
                 }
+            }
+            let top = tbody.insertRow(0)
+            top.style.backgroundColor = "#a6a5a5"
+            top.insertCell().innerHTML = "<b>OVERALL</b>"
+            top.insertCell().innerText = oCorrect
+            top.insertCell().innerText = oIncorrect
+            if (!(oCorrect === 0)) {
+                top.insertCell().innerText = Math.round((oCorrect / (oCorrect + oIncorrect)) * 100).toString() + "%"
+            } else {
+                top.insertCell().innerText = "0%"
             }
         }
     }
