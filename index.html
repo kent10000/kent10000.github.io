@@ -851,16 +851,16 @@
                     row.insertCell().innerText = "0%"
                 }
             }
-            let top = tbody.insertRow(0)
-            top.style.backgroundColor = "#4CAF50"
-            top.insertCell().innerHTML = "<b>OVERALL</b>"
-            top.insertCell().innerText = oCorrect
-            top.insertCell().innerText = oIncorrect
-            if (!(oCorrect === 0)) {
-                top.insertCell().innerText = Math.round((oCorrect / (oCorrect + oIncorrect)) * 100).toString() + "%"
-            } else {
-                top.insertCell().innerText = "0%"
-            }
+        }
+        const top = tbody.insertRow(0)
+        top.style.backgroundColor = "#4CAF50"
+        top.insertCell().innerHTML = "<b>OVERALL</b>"
+        top.insertCell().innerText = oCorrect
+        top.insertCell().innerText = oIncorrect
+        if (!(oCorrect === 0)) {
+            top.insertCell().innerText = Math.round((oCorrect / (oCorrect + oIncorrect)) * 100).toString() + "%"
+        } else {
+            top.insertCell().innerText = "0%"
         }
     }
 
