@@ -67,7 +67,7 @@
         }
         
         .sr-only{
-            visibility: hidden;
+            display: none;
         }
 
         input[type="text"] {
@@ -203,6 +203,17 @@
             width: 100%;
             transition: background-color 0.3s;
         }
+        table {
+            width: 100%; /* Set the width of the table */
+            border-collapse: collapse; /* Collapse borders to avoid double borders */
+        }
+
+        th, td {
+            border: 1px solid #000; /* Add a solid black border to table cells */
+            padding: 10px; /* Add padding for better spacing */
+            text-align: left; /* Align text to the left */
+            background-color: #fff; /* Set background color for cells */
+        }
 
     </style>
 </head>
@@ -260,7 +271,7 @@
 
 <div class="vStack" style="width: 200px; margin: 10px">
     <div class="container">
-        <table id="tallyTable" style="border: solid">
+        <table id="tallyTable">
             
         </table>
     </div>
@@ -728,7 +739,7 @@
             }
             tally[questionData.skillCat][questionData.skillDesc].incorrect += 1;
         }
-        genTable()
+        genTable(tally)
         console.log(tally)
 
         let obj = {
@@ -747,7 +758,7 @@
         analytics.push(obj)
     }
 
-    function genTable(jsonData) {
+    function genTable(tallyData) {
         let table = document.getElementById("tallyTable");
 
         // Clear previous table body if it exists
@@ -764,39 +775,30 @@
             const header = table.createTHead();
             const headerRow = header.insertRow();
             headerRow.insertCell().innerText = 'Category';
-            headerRow.insertCell().innerText = 'Subcategory';
             headerRow.insertCell().innerText = 'Correct';
             headerRow.insertCell().innerText = 'Incorrect';
         }
 
         // Iterate through the JSON object
-        for (const category in jsonData) {
-            const subcategories = jsonData[category];
-            let totalCorrect = 0;
-            let totalIncorrect = 0;
-
-            // Calculate totals for the category
-            for (const subcategory in subcategories) {
-                totalCorrect += subcategories[subcategory].correct;
-                totalIncorrect += subcategories[subcategory].incorrect;
+        for (const category of Object.keys(tallyData)) {
+            console.log(tallyData)
+            console.log(category)
+            console.log("Cat")
+            let row = tbody.insertRow()
+            row.insertCell().innerHTML = "<b>" + category + "</b>"
+            row.insertCell().innerText = "0"
+            row.insertCell().innerText = "0"
+            for (const subCategory of Object.keys(tallyData[category])) {
+                console.log(subCategory)
+                row = tbody.insertRow()
+                let data = tallyData[category][subCategory]
+                row.insertCell().innerText = subCategory
+                row.insertCell().innerText = data.correct
+                row.insertCell().innerText = data.incorrect
             }
 
-            // Create a row for the category total
-            const categoryRow = tbody.insertRow();
-            const categoryCell = categoryRow.insertCell();
-            categoryCell.colSpan = 2; // Span across two columns
-            categoryCell.innerHTML = `<strong>${category}</strong> (Total Correct: ${totalCorrect}, Total Incorrect: ${totalIncorrect})`;
-            categoryCell.style.textAlign = 'left'; // Align text to the left
-
-            // Add subcategory rows
-            for (const subcategory in subcategories) {
-                const { correct, incorrect } = subcategories[subcategory];
-                const row = tbody.insertRow();
-                row.insertCell().innerText = ''; // Empty cell for category
-                row.insertCell().innerText = subcategory;
-                row.insertCell().innerText = correct;
-                row.insertCell().innerText = incorrect;
-            }
+            
+            
         }
     }
 
