@@ -372,9 +372,8 @@
         document.getElementById("rawInputForm").addEventListener("submit", function (e) {
             e.preventDefault();
         });
-        testSelectClick(buttons[0])
-        subjectSelectClick(subjectButtons[0])
-
+        testSelectClick(buttons[0], true )
+        subjectSelectClick(subjectButtons[0], true)
         await reloadTest()
     }
     
@@ -446,7 +445,7 @@
         return codeList.substring(0, codeList.length - 1)
     }
     
-    function testSelectClick(selection) {
+    function testSelectClick(selection, cancelReload) {
         for (let i = 0; i < buttons.length; i++) {
             buttons[i].style.background = "#ffffff";
             /*if (buttons[i].value === selection.value) {
@@ -456,10 +455,12 @@
         
         selection.style.background  = "#4CAF50";
         testChoice = selection.value;
-        reloadTest()
+        if (!(cancelReload === true)) {
+            reloadTest()
+        }
     }
     
-    function subjectSelectClick(button) {
+    function subjectSelectClick(button, cancelReload) {
         for (let i = 0; i < subjectButtons.length; i++) {
             subjectButtons[i].style.background = "#ffffff";
             /*if (buttons[i].value === selection.value) {
@@ -469,7 +470,10 @@
         }
         button.style.background  = "#4CAF50";
         subjectChoice = button.value
-        reloadTest()
+        if (!(cancelReload === true)) {
+            reloadTest()
+        }
+
         
     }
     
