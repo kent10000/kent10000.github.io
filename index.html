@@ -345,7 +345,6 @@
         
         
         for (let i = 0; i < assessmentTypes.length; i++) {
-            console.log(assessmentTypes[i])
             let button = document.createElement("button")
             button.innerText = assessmentTypes[i].text
             button.value = assessmentTypes[i].id
@@ -354,12 +353,10 @@
             buttons[i] = button
         }
         for (let i = 0; i < buttons.length; i++) {
-            console.log(buttons[i].innerText)
             document.getElementById("optionsBox").appendChild(buttons[i])
         }
 
         for (let i = 0; i < assessmentSubjects.length; i++) {
-            console.log(assessmentSubjects[i])
             let button = document.createElement("button")
             button.innerText = assessmentSubjects[i].text
             button.value = assessmentSubjects[i].id
@@ -368,7 +365,6 @@
             subjectButtons[i] = button
         }
         for (let i = 0; i < subjectButtons.length; i++) {
-            console.log(subjectButtons[i].innerText)
             document.getElementById("subOptionsBox").appendChild(subjectButtons[i])
         }
 
