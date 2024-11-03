@@ -520,7 +520,7 @@
             }
         };
         obj.questionId = code.questionId;
-        //code.ibn = "070918-DC";
+        code.ibn = "070610-DC";
         if (code.ibn) {
             console.log(code.ibn)
             const base = "https://saic.collegeboard.org/disclosed/" + code.ibn + ".json";
@@ -556,7 +556,7 @@
                     answerEnd = obj.answer.rationale.indexOf(singleMatchPhraseEnd);
                 } else {
                     const matchPhraseEnd = " are"
-                    answerStart = mathPhraseIndex + multiMatchPhrase;
+                    answerStart = mathPhraseIndex + multiMatchPhrase.length;
                     answerEnd = obj.answer.rationale.lastIndexOf(matchPhraseEnd);
                 }
 
