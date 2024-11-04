@@ -325,12 +325,14 @@
     let subjectChoice;
     let correctAnswer = true
     let analytics = [];
-    let tally = {};
+    let tally;
     init();
     
 
 
     async function init() {
+        tally = getLocalTally()
+        genTable(tally)
         const lookupApi = "https://qbank-api.collegeboard.org/msreportingquestionbank-prod/questionbank/lookup";
         let lookupRequest = await fetch(lookupApi);
         let lookup = await lookupRequest.json();
@@ -608,6 +610,34 @@
         return obj
     }
 
+    function saveLocalTally() {
+        document.cookie = "tally=" + btoa(JSON.stringify(tally))
+    }
+
+    function getLocalTally() {
+        const cookie = getCookie("tally")
+        if (cookie == "") {
+            return {}
+        }
+        return JSON.parse(atob(cookie))
+    }
+
+    function getCookie(cname) { //w3school code not mine
+        let name = cname + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(';');
+        for(let i = 0; i <ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
+
     /*async function getQuestionData(code) {
         if (code.length === 8) {
             const base = "https://saic.collegeboard.org/disclosed/" + code + ".json";
@@ -776,7 +806,8 @@
             tally[questionData.skillCat][questionData.skillDesc].incorrect += 1;
         }
         genTable(tally)
-        console.log(tally)
+        saveLocalTally()
+
 
         let obj = {
             questionId: null,
