@@ -297,6 +297,7 @@
 <div class="vStack" style="width: 200px; margin: 10px">
     <div class="tableContainer">
         <p style="font-weight: bold; text-align: center">Score</p>
+        <button onclick="resetScore()">Reset Score</button>
         <table id="tallyTable">
         </table>
     </div>
@@ -667,6 +668,12 @@
 
     }*/
 
+    function resetScore() {
+        tally = {}
+        saveLocalTally()
+        genTable(tally)
+    }
+
     function toggleSkip() {
         document.getElementById("skipButton").hidden = !document.getElementById("skipButton").hidden
     }
@@ -782,29 +789,39 @@
 
     function runAnalytics() {
         if (correctAnswer) {
-            if (!tally[questionData.skillCat]) {
-                tally[questionData.skillCat] = {}
+            if (!tally[assessmentSubjects[subjectChoice-1].text]) {
+                tally[assessmentSubjects[subjectChoice-1].text] = {}
 
             }
-            if (!tally[questionData.skillCat][questionData.skillDesc]) {
-                tally[questionData.skillCat][questionData.skillDesc]= {}
-                tally[questionData.skillCat][questionData.skillDesc].correct = 0;
-                tally[questionData.skillCat][questionData.skillDesc].incorrect = 0;
+            if (!tally[assessmentSubjects[subjectChoice-1].text][questionData.skillCat]) {
+                tally[assessmentSubjects[subjectChoice-1].text][questionData.skillCat] = {}
+
             }
-            tally[questionData.skillCat][questionData.skillDesc].correct += 1;
+            if (!tally[assessmentSubjects[subjectChoice-1].text][questionData.skillCat][questionData.skillDesc]) {
+                tally[assessmentSubjects[subjectChoice-1].text][questionData.skillCat][questionData.skillDesc]= {}
+                tally[assessmentSubjects[subjectChoice-1].text][questionData.skillCat][questionData.skillDesc].correct = 0;
+                tally[assessmentSubjects[subjectChoice-1].text][questionData.skillCat][questionData.skillDesc].incorrect = 0;
+            }
+            tally[assessmentSubjects[subjectChoice-1].text][questionData.skillCat][questionData.skillDesc].correct += 1;
 
         } else {
-            if (!tally[questionData.skillCat]) {
-                tally[questionData.skillCat] = {}
+            if (!tally[assessmentSubjects[subjectChoice-1].text]) {
+                tally[assessmentSubjects[subjectChoice-1].text] = {}
 
             }
-            if (!tally[questionData.skillCat][questionData.skillDesc]) {
-                tally[questionData.skillCat][questionData.skillDesc] = {};
-                tally[questionData.skillCat][questionData.skillDesc].correct = 0;
-                tally[questionData.skillCat][questionData.skillDesc].incorrect = 0;
+            if (!tally[assessmentSubjects[subjectChoice-1].text][questionData.skillCat]) {
+                tally[assessmentSubjects[subjectChoice-1].text][questionData.skillCat] = {}
+
             }
-            tally[questionData.skillCat][questionData.skillDesc].incorrect += 1;
+            if (!tally[assessmentSubjects[subjectChoice-1].text][questionData.skillCat][questionData.skillDesc]) {
+                tally[assessmentSubjects[subjectChoice-1].text][questionData.skillCat][questionData.skillDesc] = {};
+                tally[assessmentSubjects[subjectChoice-1].text][questionData.skillCat][questionData.skillDesc].correct = 0;
+                tally[assessmentSubjects[subjectChoice-1].text][questionData.skillCat][questionData.skillDesc].incorrect = 0;
+            }
+            tally[assessmentSubjects[subjectChoice-1].text][questionData.skillCat][questionData.skillDesc].incorrect += 1;
         }
+        console.log(subjectChoice)
+        console.log(JSON.stringify(tally))
         genTable(tally)
         saveLocalTally()
 
@@ -838,9 +855,10 @@
     }
 
     function genTable(tallyData) {
+        console.log(tallyData)
         let table = document.getElementById("tallyTable");
-        let oCorrect = 0;
-        let oIncorrect = 0;
+        let overallCorrect = 0;
+        let overallIncorrect = 0;
 
         // Clear previous table body if it exists
         const existingTbody = table.querySelector('tbody');
@@ -861,49 +879,67 @@
             headerRow.insertCell().innerText = 'Pct';
         }
 
+        let overallRow = tbody.insertRow()
+
         // Iterate through the JSON object
-        for (const category of Object.keys(tallyData)) {
-            const catObj = tallyData[category]
-            console.log(tallyData)
-            console.log(category)
-            console.log("Cat")
-            let row = tbody.insertRow()
-            row.insertCell().innerHTML = "<b>" + category + "</b>"
-            const catCount = getCatCount(catObj)
-            row.insertCell().innerText = catCount.correct
-            row.insertCell().innerText = catCount.incorrect
-            oCorrect += catCount.correct
-            oIncorrect += catCount.incorrect
-            console.log(catCount.correct)
-            if (!(catCount.correct === 0)) {
-                row.insertCell().innerText = Math.round((catCount.correct / (catCount.correct + catCount.incorrect)) * 100).toString() + "%"
-            } else {
-                row.insertCell().innerText = "0%"
-            }
-            row.style.backgroundColor = "#D3D3D3"
-            for (const subCategory of Object.keys(catObj)) {
-                console.log(subCategory)
-                row = tbody.insertRow()
-                let data = tallyData[category][subCategory]
-                row.insertCell().innerText = subCategory
-                row.insertCell().innerText = data.correct
-                row.insertCell().innerText = data.incorrect
-                if (!(data.correct === 0)) {
-                    row.insertCell().innerText = Math.round((data.correct / (data.correct + data.incorrect)) * 100).toString() + "%"
+        for (const subject of Object.keys(tallyData)) {
+            let oCorrect = 0;
+            let oIncorrect = 0;
+            const top = tbody.insertRow()
+            for (const category of Object.keys(tallyData[subject])) {
+                const catObj = tallyData[subject][category]
+                console.log(tallyData[subject])
+                console.log(category)
+                console.log("Cat")
+                let row = tbody.insertRow()
+                row.insertCell().innerHTML = "<b>" + category + "</b>"
+                const catCount = getCatCount(catObj)
+                row.insertCell().innerText = catCount.correct
+                row.insertCell().innerText = catCount.incorrect
+                oCorrect += catCount.correct
+                oIncorrect += catCount.incorrect
+                console.log(catCount.correct)
+                if (!(catCount.correct === 0)) {
+                    row.insertCell().innerText = Math.round((catCount.correct / (catCount.correct + catCount.incorrect)) * 100).toString() + "%"
                 } else {
                     row.insertCell().innerText = "0%"
                 }
+                row.style.backgroundColor = "#D3D3D3"
+                for (const subCategory of Object.keys(catObj)) {
+                    console.log(subCategory)
+                    row = tbody.insertRow()
+                    let data = tallyData[subject][category][subCategory]
+                    row.insertCell().innerText = subCategory
+                    row.insertCell().innerText = data.correct
+                    row.insertCell().innerText = data.incorrect
+                    if (!(data.correct === 0)) {
+                        row.insertCell().innerText = Math.round((data.correct / (data.correct + data.incorrect)) * 100).toString() + "%"
+                    } else {
+                        row.insertCell().innerText = "0%"
+                    }
+                }
             }
+            overallCorrect += oCorrect
+            overallIncorrect += oIncorrect
+            top.style.backgroundColor = "#3d82ce"
+            top.insertCell().innerHTML = "<b>"+ subject +"</b>"
+            top.insertCell().innerText = oCorrect
+            top.insertCell().innerText = oIncorrect
+            if (!(oCorrect === 0)) {
+                top.insertCell().innerText = Math.round((oCorrect / (oCorrect + oIncorrect)) * 100).toString() + "%"
+            } else {
+                top.insertCell().innerText = "0%"
+            }
+
         }
-        const top = tbody.insertRow(0)
-        top.style.backgroundColor = "#4CAF50"
-        top.insertCell().innerHTML = "<b>OVERALL</b>"
-        top.insertCell().innerText = oCorrect
-        top.insertCell().innerText = oIncorrect
-        if (!(oCorrect === 0)) {
-            top.insertCell().innerText = Math.round((oCorrect / (oCorrect + oIncorrect)) * 100).toString() + "%"
+        overallRow.style.backgroundColor = "#4CAF50"
+        overallRow.insertCell().innerHTML = "<b>Overall</b>"
+        overallRow.insertCell().innerText = overallCorrect
+        overallRow.insertCell().innerText = overallIncorrect
+        if (!(overallCorrect === 0)) {
+            overallRow.insertCell().innerText = Math.round((overallCorrect / (overallCorrect + overallIncorrect)) * 100).toString() + "%"
         } else {
-            top.insertCell().innerText = "0%"
+            overallRow.insertCell().innerText = "0%"
         }
     }
 
