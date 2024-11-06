@@ -429,6 +429,7 @@
     
     async function reloadTest()
     {
+        console.log(domainChoices)
         await loadQuestionList()
         await getQuestion()
     }
@@ -484,10 +485,10 @@
             button.style.background  = "#ffffff";
             //slow but works for now
             //TODO: make effiiectn
-            domainChoices = domainChoices.filter(element => element !== sessionDomains[button.value-1]);
+            domainChoices = domainChoices.filter(element => element !== domainChoices[button.value-1]);
         } else  {
             button.style.background  = "#4CAF50";
-            domainChoices.push(sessionDomains[button.value-1])
+            domainChoices.push(domainChoices[button.value-1])
         }
         console.log(domainChoices)
         
@@ -508,6 +509,8 @@
         
         selection.style.background  = "#4CAF50";
         testChoice = selection.value;
+        domainChoices= []
+        buildDomain()
         if (!(cancelReload === true)) {
             reloadTest()
         }
@@ -523,6 +526,7 @@
         }
         button.style.background  = "#4CAF50";
         subjectChoice = button.value
+        sessionDomains = [];
         buildDomain()
         catButtons.forEach(x => x.click())
         if (!(cancelReload === true)) {//clearest code ive ever written
