@@ -226,6 +226,18 @@
             width: 100%;
             transition: background-color 0.3s;
         }
+        .smallSelectorButton {
+            background-color: white;
+            color: black;
+            border: solid;
+            border-radius: 0;
+            padding: 6px 6px;
+            margin: -1px;
+            cursor: pointer;
+            font-size: 10px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
         table {
             width: 100%; /* Set the width of the table */
             border-collapse: collapse;
@@ -307,6 +319,7 @@
             <div id="optionsBox" class="hStack">
             </div>
             <div id="subOptionsBox" class="hStack"></div>
+            <div id="subSubOptionsBox" class="hStack"></div>
         </div>
     </div>
 </div>
@@ -322,6 +335,7 @@
     let assessmentDomains
     let buttons = [];
     let subjectButtons = [];
+    let catButtons = [];
     let testChoice;
     let subjectChoice;
     let correctAnswer = true
@@ -377,7 +391,36 @@
         });
         testSelectClick(buttons[0], true )
         subjectSelectClick(subjectButtons[0], true)
+        buildDomain()
         await reloadTest()
+    }
+
+    function buildDomain() {
+
+        let domainsArray;
+        switch(subjectChoice) {
+            case "1":
+                console.log(assessmentDomains)
+                domainsArray = assessmentDomains["R&W"];
+                console.log("English")
+                break;
+            default:
+                domainsArray = assessmentDomains.Math;
+                break;
+        }
+        for (let i = 0; i < domainsArray.length; i++) {
+            console.log(domainsArray[i])
+            let button = document.createElement("button")
+            button.innerText = domainsArray[i].text
+            button.value = domainsArray[i].id
+            button.classList.add("smallSelectorButton")
+            button.addEventListener("click", function() {domainSelectClick(button)})
+            catButtons[i] = button
+        }
+        for (let i = 0; i < catButtons.length; i++) {
+            console.log(catButtons[i].innerText)
+            document.getElementById("subSubOptionsBox").appendChild(catButtons[i])
+        }
     }
     
     async function reloadTest()
@@ -402,10 +445,6 @@
         });
         questionList = await questionListReq.json()
 
-    }
-    
-    function buildDomain() {
-        
     }
 
     function toggleExplanation() {
