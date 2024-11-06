@@ -320,6 +320,9 @@
             </div>
             <div id="subOptionsBox" class="hStack"></div>
             <div id="subSubOptionsBox" class="hStack"></div>
+            <button id="reloadButton" onclick="reloadTest()" class="mainButton">Reload</button>
+
+
         </div>
     </div>
 </div>
@@ -333,6 +336,7 @@
     let assessmentTypes
     let assessmentSubjects
     let assessmentDomains
+    let sessionDomains
     let buttons = [];
     let subjectButtons = [];
     let catButtons = [];
@@ -341,6 +345,7 @@
     let correctAnswer = true
     let analytics = [];
     let tally;
+    let domainChoices = []
     init();
     
 
@@ -391,28 +396,27 @@
         });
         testSelectClick(buttons[0], true )
         subjectSelectClick(subjectButtons[0], true)
-        buildDomain()
         await reloadTest()
     }
 
     function buildDomain() {
-
-        let domainsArray;
+        catButtons = []
+        document.getElementById("subSubOptionsBox").innerHTML = "";
         switch(subjectChoice) {
             case "1":
                 console.log(assessmentDomains)
-                domainsArray = assessmentDomains["R&W"];
+                sessionDomains = assessmentDomains["R&W"];
                 console.log("English")
                 break;
             default:
-                domainsArray = assessmentDomains.Math;
+                sessionDomains = assessmentDomains.Math;
                 break;
         }
-        for (let i = 0; i < domainsArray.length; i++) {
-            console.log(domainsArray[i])
+        for (let i = 0; i < sessionDomains.length; i++) {
+            console.log(sessionDomains[i])
             let button = document.createElement("button")
-            button.innerText = domainsArray[i].text
-            button.value = domainsArray[i].id
+            button.innerText = sessionDomains[i].text
+            button.value = sessionDomains[i].id
             button.classList.add("smallSelectorButton")
             button.addEventListener("click", function() {domainSelectClick(button)})
             catButtons[i] = button
@@ -466,25 +470,32 @@
        }
     }
     function getDomains() {
-      
-        let domainsArray;
-        switch(subjectChoice) {
-            case "1":
-                console.log(assessmentDomains)
-                domainsArray = assessmentDomains["R&W"];
-                console.log("English")
-                break;
-            default:
-                domainsArray = assessmentDomains.Math;
-                break;
-        }
-        console.log(domainsArray)
+        console.log(sessionDomains)
         let codeList = ""
-        for (let i = 0; i < domainsArray.length; i++) {
-            let code = domainsArray[i].primaryClassCd
+        for (let i = 0; i < domainChoices.length; i++) {
+            let code = domainChoices[i].primaryClassCd
             codeList += code +","
         }
         return codeList.substring(0, codeList.length - 1)
+    }
+
+    function domainSelectClick(button) {
+        if (button.style.background  == "rgb(76, 175, 80)") {//not clicked
+            button.style.background  = "#ffffff";
+            //slow but works for now
+            //TODO: make effiiectn
+            domainChoices = domainChoices.filter(element => element !== sessionDomains[button.value-1]);
+        } else  {
+            button.style.background  = "#4CAF50";
+            domainChoices.push(sessionDomains[button.value-1])
+        }
+        console.log(domainChoices)
+        
+        //if (cancelReload) {
+        //    reloadTest()
+        //}
+        
+
     }
     
     function testSelectClick(selection, cancelReload) {
@@ -512,7 +523,9 @@
         }
         button.style.background  = "#4CAF50";
         subjectChoice = button.value
-        if (!(cancelReload === true)) {
+        buildDomain()
+        catButtons.forEach(x => x.click())
+        if (!(cancelReload === true)) {//clearest code ive ever written
             reloadTest()
         }
 
