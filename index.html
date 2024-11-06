@@ -336,7 +336,6 @@
     let assessmentTypes
     let assessmentSubjects
     let assessmentDomains
-    let sessionDomains
     let buttons = [];
     let subjectButtons = [];
     let catButtons = [];
@@ -346,6 +345,7 @@
     let analytics = [];
     let tally;
     let domainChoices = []
+    let subDomains = []
     init();
     
 
@@ -400,23 +400,23 @@
     }
 
     function buildDomain() {
+        domainChoices = []
         catButtons = []
         document.getElementById("subSubOptionsBox").innerHTML = "";
         switch(subjectChoice) {
             case "1":
                 console.log(assessmentDomains)
-                sessionDomains = assessmentDomains["R&W"];
+                subDomains = assessmentDomains["R&W"];
                 console.log("English")
                 break;
             default:
-                sessionDomains = assessmentDomains.Math;
+                subDomains   = assessmentDomains.Math;
                 break;
         }
-        for (let i = 0; i < sessionDomains.length; i++) {
-            console.log(sessionDomains[i])
+        for (let i = 0; i < subDomains.length; i++) {
             let button = document.createElement("button")
-            button.innerText = sessionDomains[i].text
-            button.value = sessionDomains[i].id
+            button.innerText = subDomains[i].text
+            button.value = subDomains[i].id
             button.classList.add("smallSelectorButton")
             button.addEventListener("click", function() {domainSelectClick(button)})
             catButtons[i] = button
@@ -471,7 +471,7 @@
        }
     }
     function getDomains() {
-        console.log(sessionDomains)
+        console.log(domainChoices)
         let codeList = ""
         for (let i = 0; i < domainChoices.length; i++) {
             let code = domainChoices[i].primaryClassCd
@@ -485,11 +485,12 @@
             button.style.background  = "#ffffff";
             //slow but works for now
             //TODO: make effiiectn
-            domainChoices = domainChoices.filter(element => element !== domainChoices[button.value-1]);
+            domainChoices = domainChoices.filter(element => element !== subDomains[button.value-1]);
         } else  {
             button.style.background  = "#4CAF50";
-            domainChoices.push(domainChoices[button.value-1])
+            domainChoices.push(subDomains[button.value-1])
         }
+        console.log("click")
         console.log(domainChoices)
         
         //if (cancelReload) {
@@ -509,8 +510,6 @@
         
         selection.style.background  = "#4CAF50";
         testChoice = selection.value;
-        domainChoices= []
-        buildDomain()
         if (!(cancelReload === true)) {
             reloadTest()
         }
@@ -526,7 +525,7 @@
         }
         button.style.background  = "#4CAF50";
         subjectChoice = button.value
-        sessionDomains = [];
+        domainChoices = [];
         buildDomain()
         catButtons.forEach(x => x.click())
         if (!(cancelReload === true)) {//clearest code ive ever written
