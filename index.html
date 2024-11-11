@@ -1005,10 +1005,13 @@
             document.getElementById("skipButton").hidden = true
 
             document.getElementById("rawInputForm").hidden = true
-            //document.getElementById("b1").style.backgroundColor = "#ffffff"
+            document.getElementById('inputBlock').value = '';            //document.getElementById("b1").style.backgroundColor = "#ffffff"
             document.getElementById("b2").style.backgroundColor = "#ffffff"
             document.getElementById("b3").style.backgroundColor = "#ffffff"
             runAnalytics()
+            const selectedRadio = document.querySelector('input[name="answerSelector"]:checked');
+            selectedRadio.checked = false;
+            
             correctAnswer = true
             console.log(analytics)
             //TODO: clear input
