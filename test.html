@@ -230,7 +230,7 @@
       if (perfect === true) {
           itemCount++
       } else {
-          alert("You Made it to " + (itemCount - 1) + "!")
+          alert("You Made it to " + (itemCount - 1) + "!\nYou Said: " + selected.join(", ") + "\nCorrect Was: " + storage.join(", "))
           score[choices[choiceIndex]] = itemCount - 1
           itemCount = 5
           choiceIndex++
