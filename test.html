@@ -74,7 +74,7 @@
 </head>
 <body>
 <table id="score"></table>
-<button onclick="run()">Start</button>
+<button id="start" onclick="run()">Start</button>
 <div id="Answer Section" hidden>
     <div id="AnswerBox">
 
@@ -113,9 +113,9 @@
       for (let i = 0; i < quantity; i++) {
           let element = Math.floor(Math.random() * dataset.length)
           selected[i] = dataset[element]
-          if (!repeats) {
+          //if (!repeats) {
               dataset.splice(element , 1)
-          }
+          //}
       }
 
       return selected
@@ -124,6 +124,7 @@
 
 
   function run() {
+      document.getElementById("start").style.visibility = "hidden"
       selected = choseSelections(categories[choices[choiceIndex]], itemCount, true);
       console.log(selected)
       //console.log(JSON.stringify(selections))
@@ -137,9 +138,12 @@
               next()
               return
           }
-
-          document.getElementById("prompt").innerText = selected[index]
+          document.getElementById("prompt").innerText = "​"
+          setTimeout(() => {
+              document.getElementById("prompt").innerText = selected[index]
               index++
+          }, 100)
+
       }
 
 
@@ -199,6 +203,7 @@
   }
 
   function submitClick() {
+      document.getElementById("start").style.visibility = "visible"
       //alert(JSON.stringify(selected) + "\n" + JSON.stringify(storage))
       let perfect = true
       let correctCount = selected.length
