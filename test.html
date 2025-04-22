@@ -206,14 +206,14 @@
       document.getElementById("start").style.visibility = "visible"
       //alert(JSON.stringify(selected) + "\n" + JSON.stringify(storage))
       let perfect = true
-      let correctCount = selected.length
+      //let correctCount = selected.length
       for (let i = 0; i < selected.length; i++) {
           if (!(selected[i] === storage[i])) {
               perfect = false
           }
       }
 
-      const holder = selected.slice()
+      /*const holder = selected.slice()
 
       if (perfect === false) {
           correctCount = 0
@@ -225,12 +225,12 @@
                   holder.splice(index, 1)
               }
           }
-      }
+      }*/
       //alert(perfect + "\n" + correctCount + "/" + selected.length)
       if (perfect === true) {
           itemCount++
       } else {
-          alert("You Made it to " + (itemCount - 1) + "!\nYou Said: " + selected.join(", ") + "\nCorrect Was: " + storage.join(", "))
+          alert("You Made it to " + (itemCount - 1) + "!\nYou Said: " + storage.join(", ") + "\nCorrect Was: " + selected.join(", "))
           score[choices[choiceIndex]] = itemCount - 1
           itemCount = 5
           choiceIndex++
