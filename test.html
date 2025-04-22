@@ -37,8 +37,7 @@
         }
 
         #AnswerBox {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
             justify-content: center;
             margin-top: 20px;
         }
@@ -151,38 +150,38 @@
 
 
   function buildSelector(options) {
-      console.log(JSON.stringify(options))
-      //console.log(JSON.stringify(colors))
-    const div = document.getElementById("AnswerBox");
-      let answers = document.createElement("div")
-    for (let option of options) {
-      let button = document.createElement("button")
-        button.style.backgroundColor = backgroundColor;
+      console.log(JSON.stringify(options));
 
-      button.addEventListener("click", function () {
-        selectorButtonClick(button)
-      })
-      button.innerText = option
-      answers.appendChild(button)
-    }
-    div.appendChild(answers)
-      div.appendChild(document.createElement("br"))
-      answers = document.createElement("div")
+      const div = document.getElementById("AnswerBox");
+
+      // Create and style first row of buttons
+      let row1 = document.createElement("div");
       for (let option of options) {
-          let button = document.createElement("button")
+          let button = document.createElement("button");
           button.style.backgroundColor = backgroundColor;
-
+          button.innerText = option;
           button.addEventListener("click", function () {
-              selectorButtonClick(button)
-          })
-          button.innerText = option
-          answers.appendChild(button)
+              selectorButtonClick(button);
+          });
+          row1.appendChild(button);
       }
-      div.appendChild(answers)
+      div.appendChild(row1);
 
-    //code to break div so it appears as two lines
-
+      // Create and style second row of buttons
+      let row2 = document.createElement("div");
+      for (let option of options) {
+          let button = document.createElement("button");
+          button.style.backgroundColor = backgroundColor;
+          button.innerText = option;
+          button.addEventListener("click", function () {
+              selectorButtonClick(button);
+          });
+          row2.appendChild(button);
+      }
+      div.appendChild(row2);
   }
+
+
 
   function selectorButtonClick(button) {
       const name = button.innerText
