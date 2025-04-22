@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        button {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white; /* Button text color */
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        #AnswerBox {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        #AnswerBox button {
+            background-color: #008CBA; /* Blue */
+            color: black; /* Text color for answer buttons */
+            margin: 5px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        #AnswerBox button:hover {
+            background-color: #007B9E;
+            transform: scale(1.05);
+        }
+
+        #prompt {
+            font-size: 48px;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333; /* Prompt text color */
+        }
+
+        #AnswerSection {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+<table id="score"></table>
+<button onclick="run()">Start</button>
+<div id="Answer Section" hidden>
+    <div id="AnswerBox">
+
+    </div>
+    <br>
+    <button id="submit" onclick="submitClick()">Submit</button>
+</div>
+<label id="prompt"></label>
+
+
+<script>
+  const categories = {
+      numbers: ["0","1","2","3","4","5","6","7","8","9"],
+      colors: ["red", "blue", "green", "pink", "gold", "teal", "grey", "black", "white", "lime"],
+      bigColors: ["orange", "purple", "magenta", "cyan", "indigo", "turquoise", "violet", "coral", "olive", "amber"]
+
+  }
+  let storage = []
+  const backgroundColor = "white"
+  let selected = []
+  const choices = Object.keys(categories)
+  let choiceIndex = 0
+  let itemCount = 5
+  let score = {}
+
+  function choseSelections(items, quantity, repeats = false) {
+      let dataset = items.slice()
+      let selected = []
+      if (!Array.isArray(dataset)) {
+          return null
+      }
+      if (repeats === true || quantity > dataset.length) {
+          dataset = dataset.concat(dataset)
+      }
+
+      for (let i = 0; i < quantity; i++) {
+          let element = Math.floor(Math.random() * dataset.length)
+          selected[i] = dataset[element]
+          if (!repeats) {
+              dataset.splice(element , 1)
+          }
+      }
+
+      return selected
+
+  }
+
+
+  function run() {
+      selected = choseSelections(categories[choices[choiceIndex]], itemCount, true);
+      console.log(selected)
+      //console.log(JSON.stringify(selections))
+
+      let int = setInterval(updateText, 750)
+      let index = 0
+      function updateText() {
+          if (index >= selected.length) {
+              document.getElementById("prompt").innerText = ""
+              clearInterval(int)
+              next()
+              return
+          }
+
+          document.getElementById("prompt").innerText = selected[index]
+              index++
+      }
+
+
+  }
+
+
+  function buildSelector(options) {
+      console.log(JSON.stringify(options))
+      //console.log(JSON.stringify(colors))
+    const div = document.getElementById("AnswerBox");
+      let answers = document.createElement("div")
+    for (let option of options) {
+      let button = document.createElement("button")
+        button.style.backgroundColor = backgroundColor;
+
+      button.addEventListener("click", function () {
+        selectorButtonClick(button)
+      })
+      button.innerText = option
+      answers.appendChild(button)
+    }
+    div.appendChild(answers)
+      div.appendChild(document.createElement("br"))
+      answers = document.createElement("div")
+      for (let option of options) {
+          let button = document.createElement("button")
+          button.style.backgroundColor = backgroundColor;
+
+          button.addEventListener("click", function () {
+              selectorButtonClick(button)
+          })
+          button.innerText = option
+          answers.appendChild(button)
+      }
+      div.appendChild(answers)
+
+    //code to break div so it appears as two lines
+
+  }
+
+  function selectorButtonClick(button) {
+      const name = button.innerText
+    if (button.style.backgroundColor === backgroundColor) {
+        storage.push(name)
+      button.style.backgroundColor = "grey";
+      /*if (button.style.backgroundColor === undefined) {
+          button.style.backgroundColor = "grey"
+      }*/
+    } else {
+        const index = storage.indexOf(name)
+        if (index > -1 ) {
+            storage.splice(index,1)
+        }
+      button.style.backgroundColor = backgroundColor
+
+    }
+  }
+
+  function submitClick() {
+      //alert(JSON.stringify(selected) + "\n" + JSON.stringify(storage))
+      let perfect = true
+      let correctCount = selected.length
+      for (let i = 0; i < selected.length; i++) {
+          if (!(selected[i] === storage[i])) {
+              perfect = false
+          }
+      }
+
+      const holder = selected.slice()
+
+      if (perfect === false) {
+          correctCount = 0
+          for (let i = 0; i < holder.length; i++) {
+              const storageElement = storage[i]
+              const index = holder.indexOf(storageElement)
+              if (index !== -1) {
+                  correctCount++;
+                  holder.splice(index, 1)
+              }
+          }
+      }
+      //alert(perfect + "\n" + correctCount + "/" + selected.length)
+      if (perfect === true) {
+          itemCount++
+      } else {
+          alert("You Made it to " + (itemCount - 1) + "!")
+          score[choices[choiceIndex]] = itemCount - 1
+          choiceIndex++
+          if (choiceIndex >= choices.length) {
+              let scoreText = ""
+              for (const category in score) {
+                  scoreText += (category  + ": " + score[category] + "\n")
+              }
+              alert("Done!\n" + scoreText)
+              choiceIndex = 0
+          }
+      }
+      document.getElementById("AnswerBox").innerHTML = ""
+      document.getElementById("Answer Section").hidden = true
+      storage = []
+      selected = []
+  }
+
+  function next() {
+      buildSelector(categories[choices[choiceIndex]])
+      document.getElementById("Answer Section").hidden = false
+
+
+      /*submit.addEventListener("click", function () {
+          alert(JSON.stringify(selected) + "\n" + JSON.stringify(storage))
+          let perfect = true
+          let correctCount = selected.length
+          for (let i = 0; i < selected.length; i++) {
+              if (!(selected[i] === storage[i])) {
+                  perfect = false
+              }
+          }
+
+          if (perfect === false) {
+              let correctCount = 0
+              for (let i = 0; i < selected.length; i++) {
+                  const storageElement = storage[i]
+                  const index = selected.indexOf(storageElement)
+                  if (index !== -1) {
+                      correctCount++;
+                      selected.splice(index, 1)
+                  }
+              }
+          }
+          alert(perfect + "\n" + correctCount + "/" + storage.length)
+          document.getElementById("AnswerBox").innerHTML = ""
+          document.getElementById("Answer Section").hidden = true
+          storage = []
+      })*/
+  }
+
+
+</script>
+</body>
+</html>
